@@ -4,6 +4,7 @@ const width = 1200
 const height = 800
 
 const shotsDataBase = document.body.dataset.shotsBase || "data";
+let currentPlayerFilter = null;
 
 const resolveShotCsv = (value) => {
   if (!value) {
@@ -86,6 +87,17 @@ dropdown.on("change", function () {
   selectGame(resolveShotCsv(selectedFile));
 })
 
+window.addEventListener("radar:player-selected", (event) => {
+  currentPlayerFilter = event.detail?.playerName || null;
+  selectGame(resolveShotCsv(dropdown.property("value")));
+});
+
+const applyPlayerFilter = (data) => {
+  if (!currentPlayerFilter) {
+    return data;
+  }
+  return data.filter(d => d.playername === currentPlayerFilter);
+};
 
 const infoBox = svg.append("g")
   .attr("class", "infobox")
@@ -184,11 +196,13 @@ function selectGame(csvfile){
 
     });
 
-    svg.selectAll("circle.shot").remove();
+    const filteredData = applyPlayerFilter(data);
 
+    svg.selectAll("circle.shot").remove();
+    svg.selectAll("g.lines").remove();
 
     const shots = svg.selectAll("circle.shot")
-      .data(data);
+      .data(filteredData);
 
     const shotsAnim = shots.enter()                   
       .append("circle")
