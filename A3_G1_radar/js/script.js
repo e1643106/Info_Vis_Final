@@ -255,6 +255,18 @@ function setSelectedPlayer(playerId) {
     .classed("active", d => String(d.player_id) === String(playerId));
 
   drawMainRadar(player);
+  broadcastPlayerSelection(player);
+}
+
+function broadcastPlayerSelection(player) {
+  if (!player) return;
+
+  window.dispatchEvent(new CustomEvent("radar:player-selected", {
+    detail: {
+      playerId: player.player_id,
+      playerName: player.player_name
+    }
+  }));
 }
 
 function setupRadarTypeToggle() {

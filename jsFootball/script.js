@@ -86,7 +86,7 @@ dropdown.on("change", function () {
   selectGame(resolveShotCsv(selectedFile));
 })
 
-<<<<<<< ours
+
 window.addEventListener("radar:player-selected", (event) => {
   currentPlayerFilter = event.detail?.playerName || null;
   selectGame(resolveShotCsv(dropdown.property("value")));
@@ -98,15 +98,12 @@ const applyPlayerFilter = (data) => {
   }
   return data.filter(d => d.playername === currentPlayerFilter);
 };
-<<<<<<< ours
-=======
+
 
 const loadShotData = (csvFiles) =>
   Promise.all(csvFiles.map(file => d3.csv(file)))
     .then(datasets => datasets.flat());
->>>>>>> theirs
-=======
->>>>>>> theirs
+
 
 const infoBox = svg.append("g")
   .attr("class", "infobox")
