@@ -106,6 +106,7 @@ const applyPlayerFilter = (data) => {
 const loadShotData = (csvFiles) =>
   Promise.all(csvFiles.map(file => d3.csv(file)))
     .then(datasets => datasets.flat());
+<<<<<<< ours
 
 window.addEventListener("radar:player-selected", (event) => {
   currentPlayerFilter = event.detail?.playerName || null;
@@ -124,6 +125,8 @@ const loadShotData = (csvFiles) =>
   Promise.all(csvFiles.map(file => d3.csv(file)))
     .then(datasets => datasets.flat());
 
+=======
+>>>>>>> theirs
 
 const infoBox = svg.append("g")
   .attr("class", "infobox")
