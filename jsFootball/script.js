@@ -3,6 +3,18 @@
 const width = 1200
 const height = 800
 
+const shotsDataBase = document.body.dataset.shotsBase || "data";
+
+const resolveShotCsv = (value) => {
+  if (!value) {
+    return `${shotsDataBase}/liverpool20150809stokecity.csv`;
+  }
+  if (value.includes("/")) {
+    return value;
+  }
+  return `${shotsDataBase}/${value}`;
+};
+
 const svg = d3.select("#pitch")
   .append("svg")
   .attr("width", width)
@@ -67,10 +79,12 @@ svg.append("text")
   .attr("fill", "white") 
   .text("100%")
 
-selectGame("data/liverpool20150809stokecity.csv");
-d3.select("#gameDropdown").on("change", function () {const selectedFile = d3.select(this).property("value");    //https://d3-graph-gallery.com/graph/interactivity_button.html
-  selectGame(selectedFile);
-})     
+const dropdown = d3.select("#gameDropdown");
+selectGame(resolveShotCsv(dropdown.property("value")));
+dropdown.on("change", function () {
+  const selectedFile = d3.select(this).property("value");    //https://d3-graph-gallery.com/graph/interactivity_button.html
+  selectGame(resolveShotCsv(selectedFile));
+})
 
 
 const infoBox = svg.append("g")

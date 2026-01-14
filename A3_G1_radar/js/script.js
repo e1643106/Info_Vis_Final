@@ -96,9 +96,11 @@ let currentRadarType = "overview";   // "overview" | "finishing" | usw....
 
 // Daten laden, vorbereiten, etc...
 // ====================================================================
+const radarDataBase = document.body.dataset.radarBase || "data";
+
 Promise.all([
-  d3.csv("data/liverpool_offense_radar.csv"),
-  d3.csv("data/liverpool_shot_metrics.csv")
+  d3.csv(`${radarDataBase}/liverpool_offense_radar.csv`),
+  d3.csv(`${radarDataBase}/liverpool_shot_metrics.csv`)
 ]).then(([overviewData, shotData]) => {
   console.log("Overview-Radar-Dataset:", overviewData);
   console.log("Shot-Metrics-Dataset:", shotData);
