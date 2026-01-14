@@ -1,0 +1,19 @@
+body {
+  font-family: 'Arial', sans-serif; 
+}
+
+.responsive-svg-container {
+  margin-right: auto;
+  margin-left: auto;
+  width: 100%;
+  max-width: 1000px;
+}
+
+#pitch {
+  width: 1200px;
+  height: 800px;
+  margin: 0 auto;
+  background-image: url("footballpitch2.png");
+  background-size: cover;
+  text-align: center;
+}

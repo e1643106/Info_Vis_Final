@@ -1,0 +1,16 @@
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+dist/
+build/
+*.log
+
+# Python (falls vorhanden)
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets
+.env

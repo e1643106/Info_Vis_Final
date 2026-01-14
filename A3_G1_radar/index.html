@@ -1,0 +1,379 @@
+<!DOCTYPE html>  <!-- sagt dem browser : ist ein html5  dokument -->
+<html lang="en"> <!-- erstes wurzel element: der inhalt ist englisch -->
+<head> <!-- meta info, hier kommt rein zeichensatz,titel css ....-->
+  <meta charset="UTF-8">
+  <title>Liverpool Offensive Radar</title>
+<style> /* css block */
+  * { /* * gilt für alle */
+    box-sizing: border-box;  /* inhalt + padding + border zusammen sind xxx px */
+  }
+
+/* Schriftart, dunkler Hintergrund, heller text, margin 0, padding 0, entfernt die standart abstände des browser*/
+body { /* ganze seite */
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI", sans-serif;
+  /* sytem-ui -° standard UI schrift des systems, -appl-system/blinkMac... -> macos schrift etc..*/
+  /* segeo -> windows schrift, sans kserif notfall fallback */
+  background: #050816; 
+  color: #f5f5ff; /* text farbe */
+  margin: 0; /* außenabstand */
+  padding: 0;              /* innenabstand */
+}
+  /* h1 große überschrift etwas größer */
+  h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 28px;
+    letter-spacing: 0.03em;
+  }
+  /* p standard fließtext */
+  p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #c0c4ff;
+    font-size: 14px;
+  }
+
+  /*  links Radar, rechts Cards */
+.layout {                   /* . -> klasse, layout -> klassenname */
+  display: flex;            /* behandelt direkte kinder von .layout "flexibel" (anordnung) */
+  gap: 24px;                /* abstand zwischen links rechts bereiche */
+  align-items: flex-start; /* kinder am oberen rand ausrichten */
+  max-width: 1360px;      /* maximale breite des layouts */
+  margin: 24px auto;       /*  vertikaler bstand hier */
+}
+
+
+  .left-panel {
+    flex: 2;                  /* nimmt 2 anteile des verfügbaren platzes ein */
+  } 
+
+
+  .right-column {   
+    flex: 2;                /* nimmt 2 anteile des verfügbaren platzes ein */       
+    display: flex;
+    flex-direction: column;                         /* kinder untereinander */
+  }
+
+
+  /* styling für üpberschrift */
+  .right-column h2 {
+    margin: 0 0 0.25rem 0;
+    font-size: 18px;
+  }
+
+  .right-column p.note {
+    margin: 0 0 0.75rem 0;    /* ober rechts unten links */
+    font-size: 12px;
+    color: #9ba3d9;
+  }
+
+
+  /* Container für die 4 Karten  2x2-Grid */
+  .right-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 spalten */ /* vrehindert das innhaltte die spalten aufblähen */
+    gap: 12px;                                        /* abstand zwischen karten */
+    margin-top: 4px;
+  }
+
+  /* aussehen einer karte */
+  .category-card {
+    background: #0c1326;
+    border-radius: 12px;
+    padding: 10px 12px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.4);
+    flex: 1 1 0; /* hier eigentlich egal, weil karten im grid liegen */
+    min-width: 0;
+  }
+  /*  box/karten überschrift */
+  .category-card h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 13px;
+    color: #c0c4ff;
+  }
+/* ------------------------------------------------------------------------------------------------------------------------*/
+
+  /* steuerleiste (dropdown + buttons) ausriochten */
+  .controls {
+    margin-bottom: 0.5rem; 
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /*abstand zwischen elementen/kinndern */
+    font-size: 14px;
+    flex-wrap: wrap; /* wenn platz nicht reicht umbrechen */
+  }
+/* radar styling ----------------------------------------------------------------------------------------------------*/
+  .controls-label { /* text vor den buttons */
+    font-size: 12px;
+    color: #9ba3d9;
+  }
+
+  label {        /* text vor dropdown */
+    margin-right: 0.25rem;
+  }
+
+  select {      /* dinkler hintergrung, runde ecken, helle scrift */
+    padding: 0.25rem 0.5rem;
+    font-size: 14px;
+    border-radius: 6px; /* runde ecken */
+    border: 1px solid #394b7a;
+    background: #0c1326;
+    color: #f5f5ff; /* text im dropdown */
+  }
+/* ------------------------------------------------------------------------------------------------------------------*/
+
+
+/* SVG für radar ------------------------------------------------------------------------------------------*/
+/* svg zeiochenfläche*/
+
+#radar-svg {
+  display: block; /* svg ist ein element wie ein bild, block sorgt dafür: es nimmt eine eigene zeile, es verhält sich wie ein normaler block <div>*/
+  margin: 8px 0 0;     /* oben links/rechts unten */
+  background: #0c1326;
+  border-radius: 18px; /* runde ecken */
+  box-shadow: 0 0 40px rgba(0,0,0,0.6); /* schatten */
+  width: 620px;        
+  height: 620px;
+}
+/*  fill Füllfarbe Innenfläche */
+/*  stroke Linenfarbe Rand */
+/*  stroke width = linienstärke  */
+ /* radar spezifische styles */
+
+  .axis-label { 
+    fill: #f5f5ff;
+    font-size: 12px;
+    text-anchor: middle;
+  }
+
+  .grid-line { /* linien im hintergrund (kreis polygone vom grid)*/
+    stroke: #343c5c;
+    stroke-width: 1;
+    fill: none;
+  }
+
+  .grid-level-label {
+    fill: #8a91c2;
+    font-size: 10px;
+  }
+  /* gefüllte polygone */
+  .radar-area {
+    fill: rgba(255, 99, 132, 0.35);
+    stroke: #ff6384;
+    stroke-width: 2;
+  }
+
+  .radar-circle {  /* punkte auf den achsen */
+    stroke: #11182a;
+    stroke-width: 1.5;
+  }
+
+  .radar-title {
+    font-size: 16px;
+    fill: #f5f5ff;
+    text-anchor: middle;
+  }
+
+  .radar-subtitle {
+    font-size: 12px;
+    fill: #9ba3d9;
+    text-anchor: middle;
+  }
+/* ------------------------------------------------------------------------------------------------------------------------------*/
+
+/* Top-Listen Styling  <ol> oder <ul> */
+  .top-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    font-size: 13px;
+  }
+  /* .top-item = ein einzelner listeneintrag (eine zueile) */
+  .top-item {
+    display: flex;
+    justify-content: space-between; /* name links, score rechts -> verteilt die kinder sodass,eine links,eine rechts dazwischen max abstand */
+    align-items: center;
+    padding: 6px 8px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    cursor: pointer;  /* sollen aanklickbar sein */
+    transition: background 0.15s, transform 0.15s; /* smoother hover effekt*/
+  }
+
+  .top-item:hover { /* hover effekt */
+    background: #151f3d;
+    transform: translateY(-1px);
+  }
+
+  .top-item.active { /* aktives spieler highlight */ /* gilt nur wenn das element zusätzlicxh die klasse "active" hat*/
+    background: linear-gradient(90deg, #ff6384, #ff9d76);
+    color: #050816;
+    font-weight: 600;
+  }
+  /* name mit ellipsis wenn zu lang , 8abschneiden*/
+  .top-item .name { 
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+/* score rechts, fette zahlen */
+  .top-item .score {
+    font-variant-numeric: tabular-nums; /* sorgt dafür,dass zahlen immer die gleiche breite haben */
+    font-size: 12px;
+    opacity: 0.9;
+  }
+/* ------------------------------------------------------------------------------------------------------------------------------*/
+
+
+  /* Segmented Control für Radar-Typ */
+  .segmented {
+    display: inline-flex; /* container nur so breit wie sein inhalt */
+    background: #0c1326;
+    border-radius: 999px; /* pill shape */
+    padding: 2px;
+    border: 1px solid #394b7a;
+  }
+/* einzelne buttons */
+  .segmented-btn {
+    border: none; /* keine standard rahmen */
+    background: transparent;
+    color: #ffff;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap; /* verhindert umbrechen */
+  }
+/* active button */
+  .segmented-btn.active {
+    background: linear-gradient(120deg, #ff6384, #ff9d76);
+    color: #050816;
+    font-weight: 600;
+  }
+/* hover effekt */
+  .tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: rgba(5, 8, 22, 0.95);
+    color: #ffff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    z-index: 9999;
+    opacity: 0;
+    transform: none;
+  }
+  /* info box unter überschrift */
+  .info-box {
+    margin-top: 8px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(12, 19, 38, 0.95);
+    border: 1px solid #394b7a;
+    font-size: 12px;
+    color: #c0c4ff;
+    max-width: 620px;
+    line-height: 1.5;
+  }
+
+  .info-box b {
+    color: #f5f5ff;
+  }
+
+  .info-box ul {
+    padding-left: 18px;
+    margin: 6px 0 0 0;
+  }
+
+</style>
+
+</head>
+<body>
+
+  <div class="layout"> <!-- hauptcontainer -->
+    <!--- layout mit zwei spalten, links, rechts......-->
+    <div class="left-panel">
+      <h1>Liverpool Offensiv Radar</h1>
+
+
+      <div class="info-box">
+        <b>How the four radar categories are computed</b><br>
+        All metrics are first normalised within the team and then
+        converted to percentiles (0–100). Each category is an average of
+        several underlying components:
+        <ul>
+          <li><b>Finishing &amp; xG</b> – goals vs. expected goals per shot,
+              plus share of touches in the box and in the deep zone.</li>
+          <li><b>Chance Creation</b> – key passes, assists, passes into the box
+              and into the deep zone, each measured per touch in the final third.</li>
+          <li><b>Ball Progression</b> – passes and carries that move the ball
+              into the final third, with extra weight for actions ending close to goal.</li>
+          <li><b>Dribbling &amp; On-ball</b> – dribble success rate, fouls won
+              in the final third, and a “clean on-ball” score that penalises
+              miscontrols and being dispossessed.</li>
+        </ul>
+      </div>
+
+
+      <!-- Spieler-auswahl -->
+      <div class="controls">
+        <label for="player-select">Player:</label>
+        <select id="player-select"></select>
+      </div>
+
+      <!-- Radar-Typ-auswahl -->
+      <div class="controls">
+        <span class="controls-label">Radar:</span>
+        <div class="segmented" id="radar-type-toggle">
+          <button class="segmented-btn active" data-radar="overview">Overview</button>
+          <button class="segmented-btn" data-radar="finishing">Finishing</button>
+          <button class="segmented-btn" data-radar="creation">Creation</button>
+          <button class="segmented-btn" data-radar="progression">Progression</button>
+          <button class="segmented-btn" data-radar="dribbling">Dribbling</button>
+        </div>
+      </div>
+
+      <!-- EIN Radar-SVG -->
+      <svg id="radar-svg" width="620" height="600"></svg>
+    </div>
+
+    <!-- rechter Bereich , 4 karten nebeneinander -->
+    <div class="right-column">
+      <h2>Top 10 per Category</h2>
+      <p class="note">Based on within-team percentiles.</p>
+
+      <div class="right-columns">
+        <div class="category-card">
+          <h3>Finishing &amp; xG</h3>
+          <ol id="top-finishing" class="top-list"></ol>
+        </div>
+
+        <div class="category-card">
+          <h3>Chance Creation</h3>
+          <ol id="top-creation" class="top-list"></ol>
+        </div>
+
+        <div class="category-card">
+          <h3>Ball Progression</h3>
+          <ol id="top-progression" class="top-list"></ol>
+        </div>
+
+        <div class="category-card">
+          <h3>Dribbling &amp; On-Ball</h3>
+          <ol id="top-dribbling" class="top-list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- tooltip -->
+  <div id="tooltip" class="tooltip"></div>
+
+  <!-- lädt D3 v7 -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
+
+
