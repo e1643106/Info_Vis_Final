@@ -4,6 +4,7 @@ const width = 1200
 const height = 800
 
 const shotsDataBase = document.body.dataset.shotsBase || "data";
+let currentPlayerFilter = null;
 
 const resolveShotCsv = (value) => {
   if (!value) {
@@ -80,12 +81,31 @@ svg.append("text")
   .text("100%")
 
 const dropdown = d3.select("#gameDropdown");
+const allMatchFiles = dropdown.selectAll("option")
+  .nodes()
+  .map(option => resolveShotCsv(option.value));
+
 selectGame(resolveShotCsv(dropdown.property("value")));
 dropdown.on("change", function () {
   const selectedFile = d3.select(this).property("value");    //https://d3-graph-gallery.com/graph/interactivity_button.html
   selectGame(resolveShotCsv(selectedFile));
 })
 
+window.addEventListener("radar:player-selected", (event) => {
+  currentPlayerFilter = event.detail?.playerName || null;
+  selectGame(resolveShotCsv(dropdown.property("value")));
+});
+
+const applyPlayerFilter = (data) => {
+  if (!currentPlayerFilter) {
+    return data;
+  }
+  return data.filter(d => d.playername === currentPlayerFilter);
+};
+
+const loadShotData = (csvFiles) =>
+  Promise.all(csvFiles.map(file => d3.csv(file)))
+    .then(datasets => datasets.flat());
 
 window.addEventListener("radar:player-selected", (event) => {
   currentPlayerFilter = event.detail?.playerName || null;
@@ -179,7 +199,9 @@ shotlineGradient.append("stop")
   .attr("stop-opacity", 1);
 
 function selectGame(csvfile){
-  d3.csv(csvfile).then(data => {
+  const filesToLoad = currentPlayerFilter ? allMatchFiles : [csvfile];
+
+  loadShotData(filesToLoad).then(data => {
     // Print out the data on the console
     console.log(data);
     console.log(location)
@@ -202,11 +224,13 @@ function selectGame(csvfile){
 
     });
 
-    svg.selectAll("circle.shot").remove();
+    const filteredData = applyPlayerFilter(data);
 
+    svg.selectAll("circle.shot").remove();
+    svg.selectAll("g.lines").remove();
 
     const shots = svg.selectAll("circle.shot")
-      .data(data);
+      .data(filteredData);
 
     const shotsAnim = shots.enter()                   
       .append("circle")
