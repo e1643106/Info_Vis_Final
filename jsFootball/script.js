@@ -85,44 +85,32 @@ const allMatchFiles = dropdown.selectAll("option")
   .nodes()
   .map(option => resolveShotCsv(option.value));
 
-selectGame(resolveShotCsv(dropdown.property("value")));
-dropdown.on("change", function () {
-  const selectedFile = d3.select(this).property("value");    //https://d3-graph-gallery.com/graph/interactivity_button.html
+const normalizePlayerName = (name) => String(name || "").trim().toLowerCase();
+
+const applyPlayerFilter = (data) => {
+  if (!currentPlayerFilter) {
+    return data;
+  }
+  const target = normalizePlayerName(currentPlayerFilter);
+  return data.filter(d => normalizePlayerName(d.playername) === target);
+};
+
+const loadShotData = (csvFiles) =>
+  Promise.all(csvFiles.map(file => d3.csv(file)))
+    .then(datasets => datasets.flat());
+
+const refreshShots = () => {
+  const selectedFile = dropdown.property("value");
   selectGame(resolveShotCsv(selectedFile));
-})
+};
+
+selectGame(resolveShotCsv(dropdown.property("value")));
+dropdown.on("change", refreshShots);
 
 window.addEventListener("radar:player-selected", (event) => {
   currentPlayerFilter = event.detail?.playerName || null;
-  selectGame(resolveShotCsv(dropdown.property("value")));
+  refreshShots();
 });
-
-const applyPlayerFilter = (data) => {
-  if (!currentPlayerFilter) {
-    return data;
-  }
-  return data.filter(d => d.playername === currentPlayerFilter);
-};
-
-const loadShotData = (csvFiles) =>
-  Promise.all(csvFiles.map(file => d3.csv(file)))
-    .then(datasets => datasets.flat());
-
-window.addEventListener("radar:player-selected", (event) => {
-  currentPlayerFilter = event.detail?.playerName || null;
-  selectGame(resolveShotCsv(dropdown.property("value")));
-});
-
-const applyPlayerFilter = (data) => {
-  if (!currentPlayerFilter) {
-    return data;
-  }
-  return data.filter(d => d.playername === currentPlayerFilter);
-};
-
-
-const loadShotData = (csvFiles) =>
-  Promise.all(csvFiles.map(file => d3.csv(file)))
-    .then(datasets => datasets.flat());
 
 
 const infoBox = svg.append("g")
@@ -213,7 +201,7 @@ function selectGame(csvfile){
       d.endx = endpos[0];
       d.endy = endpos[1];
       d.xg = +d.shot_statsbomb_xg;
-      d.playername = d.player
+      d.playername = d.player;
       d.shottime = d.minute
       d.outcome = d.shot_outcome
       d.pattern = d.play_pattern
