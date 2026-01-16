@@ -93,7 +93,7 @@ Promise.all([
     });
   });
 
-  // merge by row index (your assumption)
+  // merge by row index 
   const merged = overviewData.map((d, i) => ({ ...shotData[i], ...d }));
   players = merged;
 

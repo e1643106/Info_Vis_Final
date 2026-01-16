@@ -44,7 +44,8 @@
   const resolveCsv = (file) => {
     if (!file) return null;
     if (file.startsWith("http://") || file.startsWith("https://") || file.startsWith("/")) return file;
-    // allow "data/.." passed in (but we expect plain filename)
+
+    // allow "data/.." passed in (but we expect plain filename)....
     if (file.includes("/")) return file;
     return `${shotsDataBase}/${file}`;
   };
@@ -90,7 +91,7 @@
       .attr("fill", "transparent")
       .attr("stroke", stroke).attr("stroke-width", sw);
 
-    // half line
+    // half lien
     pitch.append("line")
       .attr("x1", 60).attr("y1", 0)
       .attr("x2", 60).attr("y2", 80)
@@ -309,7 +310,7 @@
         .attr("value", d => d.file)
         .text(d => d.label);
 
-      // default first
+
       if (allMatches.length) dropdownSel.property("value", allMatches[0].file);
 
     } catch (err) {
@@ -343,7 +344,7 @@
     const selectedFile = dropdownSel.property("value");
     const scope = shotScope; // "match" | "all"
 
-    // Only load ALL matches when a player is selected (otherwise it is pointless + heavy)
+    // Only load ALL matches when a player is selected 
     const shouldLoadAll = (scope === "all") && hasPlayerFilter();
 
     const filesToLoad = shouldLoadAll
@@ -367,7 +368,7 @@
       d.xg = +(d.shot_statsbomb_xg ?? d.xg ?? 0);
       d.playername = getRowPlayerName(d);
 
-      // minute can be missing in some files
+
       const minute = d.minute ?? "";
       d.shottime = minute;
 
