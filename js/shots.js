@@ -145,6 +145,86 @@
   // layers
   const lineLayer = svg.append("g").attr("class", "lines");
   const shotLayer = svg.append("g").attr("class", "shots");
+  const freezeLayer = svg.append("g").attr("class", "freeze");
+
+  //360 stuff
+  const clickHint = svg.append("g").attr("class", "clickhint");
+  const freezeLegend = svg.append("g").attr("class", "freezelegend").style("display", "none");
+
+  clickHint.append("text")
+    .attr("x", 5).attr("y", 75)
+    .attr("font-size", 3.0)
+    .attr("fill", "white")
+    .attr("opacity", 0.35)
+    .text("Click a shot to show player positions");
+
+  function showClickHint(){ clickHint.style("display", null); }
+  function hideClickHint(){ clickHint.style("display", "none"); }
+
+  function showFreezeLegend(){
+    freezeLegend.style("display", null);
+    freezeLegend.selectAll("*").remove();
+
+    freezeLegend.append("circle")
+      .attr("cx", 8).attr("cy", 70).attr("r", 1.3)
+      .attr("fill", "deepskyblue")
+      .attr("stroke", "white").attr("stroke-width", 0.2);
+
+    freezeLegend.append("text")
+      .attr("x", 11).attr("y", 71)
+      .attr("font-size", 2.4)
+      .attr("fill", "white")
+      .text("Teammate");
+
+    freezeLegend.append("circle")
+      .attr("cx", 8).attr("cy", 74).attr("r", 1.3)
+      .attr("fill", "tomato")
+      .attr("stroke", "white").attr("stroke-width", 0.2);
+
+    freezeLegend.append("text")
+      .attr("x", 11).attr("y", 75)
+      .attr("font-size", 2.4)
+      .attr("fill", "white")
+      .text("Opponent");
+
+    freezeLegend.append("text")
+      .attr("x", 27).attr("y", 73)
+      .attr("font-size", 2.4)
+      .attr("fill", "white")
+      .attr("opacity", 0.35)
+      .text("Click anywhere to hide");
+  }
+
+  function hideFreezeLegend(){ freezeLegend.style("display", "none"); }
+
+  function parseFreezeFrame(s) {
+  if (!s || !String(s).trim()) return [];
+
+  // If it's already JSON, try that first
+  try {
+    const j = JSON.parse(s);
+    return Array.isArray(j) ? j : [];
+  } catch {}
+
+  // Otherwise: convert python-ish dict string to JSON (same approach as script.js)
+  let t = String(s);
+
+  const pyString = "'(?:\\\\.|[^'\\\\])*'";
+  t = t.replace(new RegExp("('name'\\s*:\\s*)" + pyString, "g"), "$1null");
+
+  t = t.replace(/\bTrue\b/g, "true")
+       .replace(/\bFalse\b/g, "false")
+       .replace(/\bNone\b/g, "null");
+
+  t = t.replace(/'([A-Za-z0-9_]+)'\s*:/g, '"$1":');
+
+  t = t.replace(/:\s*'((?:\\.|[^'\\])*)'/g, (m, v) => {
+    return `: "${v.replace(/"/g, '\\"')}"`;
+  });
+
+  try { return JSON.parse(t); } catch { return []; }
+}
+
 
   // ---------------------------
   // Legend (xG)
@@ -159,27 +239,27 @@
   linearGradient.append("stop").attr("offset", "100%").attr("stop-color", "#006837");
 
   svg.append("text")
-    .attr("x", 30).attr("y", 10)
-    .attr("font-size", 4)
+    .attr("x", 30).attr("y", 5)
+    .attr("font-size", 3)
     .attr("text-anchor", "middle")
     .attr("fill", "white")
     .text("xG Probability");
 
   svg.append("rect")
-    .attr("x", 10).attr("y", 12)
+    .attr("x", 10).attr("y", 7)
     .attr("width", 40).attr("height", 6)
     .attr("fill", "url(#legend-gradient)")
     .attr("stroke", "white").attr("stroke-width", 0.4);
 
-  svg.append("text").attr("x", 10).attr("y", 22)
+  svg.append("text").attr("x", 10).attr("y", 16)
     .attr("font-size", 2.2).attr("text-anchor", "middle")
     .attr("fill", "white").text("0%");
 
-  svg.append("text").attr("x", 30).attr("y", 22)
+  svg.append("text").attr("x", 30).attr("y", 16)
     .attr("font-size", 2.2).attr("text-anchor", "middle")
     .attr("fill", "white").text("50%");
 
-  svg.append("text").attr("x", 50).attr("y", 22)
+  svg.append("text").attr("x", 50).attr("y", 16)
     .attr("font-size", 2.2).attr("text-anchor", "middle")
     .attr("fill", "white").text("100%");
 
@@ -340,6 +420,7 @@
   // ---------------------------
   // Render
   // ---------------------------
+  let selectedShotKey = null;
   async function selectGameOrAll() {
     const selectedFile = dropdownSel.property("value");
     const scope = shotScope; // "match" | "all"
@@ -375,20 +456,28 @@
       d.outcome = d.shot_outcome ?? "";
       d.pattern = d.play_pattern ?? "";
 
+      d.freeze = parseFreezeFrame(d.shot_freeze_frame);
+
       cleaned.push(d);
     });
 
     const filteredData = applyPlayerFilter(cleaned);
+    filteredData.forEach((d, i) => { d.__shotKey = `${i}`; });
 
     // clear old
     shotLayer.selectAll("circle.shot").remove();
     lineLayer.selectAll("line.hover-line").remove();
+    freezeLayer.selectAll("*").remove();
+    selectedShotKey = null;
+    hideFreezeLegend();
+    showClickHint();
 
     // color scale
     const colorScale = d3.scaleSequential(d3.interpolateRdYlGn).domain([0, 1]);
 
     // draw shots
     const shots = shotLayer.selectAll("circle.shot").data(filteredData);
+    
 
     const shotsEnter = shots.enter()
       .append("circle")
@@ -437,6 +526,63 @@
       .on("mouseout", function () {
         lineLayer.selectAll("line.hover-line").remove();
       });
+
+    shotsEnter.on("click", function (event, d) {
+    event.stopPropagation();
+
+    const isSame = selectedShotKey && selectedShotKey === d.__shotKey;
+    selectedShotKey = isSame ? null : d.__shotKey;
+
+    freezeLayer.selectAll("*").remove();
+
+    if (!selectedShotKey) {
+      // restore all shots
+      shotLayer.selectAll("circle.shot")
+        .style("opacity", 1)
+        .style("pointer-events", "all");
+      hideFreezeLegend();
+      showClickHint();
+      return;
+    }
+
+    // hide all other shots
+    shotLayer.selectAll("circle.shot")
+      .style("opacity", s => (s.__shotKey === selectedShotKey ? 1 : 0))
+      .style("pointer-events", s => (s.__shotKey === selectedShotKey ? "all" : "none"));
+
+    hideClickHint();
+    showFreezeLegend();
+
+    const players = Array.isArray(d.freeze) ? d.freeze : [];
+
+    freezeLayer.selectAll("circle.freeze-player")
+      .data(players)
+      .enter()
+      .append("circle")
+      .attr("class", "freeze-player")
+      .attr("cx", p => (p.location ? p.location[0] : null))
+      .attr("cy", p => (p.location ? p.location[1] : null))
+      .attr("r", 0)
+      .attr("fill", p => p.teammate ? "deepskyblue" : "tomato")
+      .attr("stroke", "white")
+      .attr("stroke-width", 0.3)
+      .style("pointer-events", "none")
+      .transition()
+      .duration(250)
+      .attr("r", 1.0);
+  });
+
+  svg.on("click", () => {
+      selectedShotKey = null;
+      freezeLayer.selectAll("*").remove();
+      shotLayer.selectAll("circle.shot")
+        .style("opacity", 1)
+        .style("pointer-events", "all");
+      hideFreezeLegend();
+      showClickHint();
+    });
+
+
   }
 
   function refreshShots() {
