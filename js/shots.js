@@ -5,10 +5,11 @@
 
   const pitchRoot = d3.select("#pitch");
   const dropdownSel = d3.select("#gameDropdown");
-  const scopeSel = d3.select("#shotScope");
+  const scopeToggle = d3.select("#shotScopeToggle");
+  const clearBtn = d3.select("#clearPlayerFilter");
 
-  if (pitchRoot.empty() || dropdownSel.empty() || scopeSel.empty()) {
-    console.error("[shots] Missing DOM elements (#pitch, #gameDropdown, #shotScope). Check index.html IDs.");
+  if (pitchRoot.empty() || dropdownSel.empty() || scopeToggle.empty() || clearBtn.empty()) {
+    console.error("[shots] Missing DOM elements (#pitch, #gameDropdown, #shotScopeToggle, #clearPlayerFilter). Check index.html IDs.");
     return;
   }
 
@@ -18,6 +19,7 @@
   const PLAYER_CHANNEL = "liverpool-player-selection-v1";
   let currentPlayerFilter = { id: null, name: null };
   let allMatches = []; // [{file,label, dateKey}...]
+  let shotScope = "match";
 
   // ---------------------------
   // Helpers
@@ -238,11 +240,23 @@
   // ---------------------------
   // Player selection comms
   // ---------------------------
+  const updateScopeButton = () => {
+    const hasPlayer = hasPlayerFilter();
+    if (shotScope === "all" && !hasPlayer) shotScope = "match";
+
+    scopeToggle
+      .attr("data-scope", shotScope)
+      .text(shotScope === "all" ? "All matches (season)" : "This match only")
+      .classed("is-all", shotScope === "all")
+      .property("disabled", !hasPlayer);
+  };
+
   const setPlayerFilter = (detail) => {
     currentPlayerFilter = {
       id: detail?.playerId != null ? String(detail.playerId) : null,
       name: detail?.playerName || null
     };
+    updateScopeButton();
     refreshShots();
   };
 
@@ -327,7 +341,7 @@
   // ---------------------------
   async function selectGameOrAll() {
     const selectedFile = dropdownSel.property("value");
-    const scope = scopeSel.property("value"); // "match" | "all"
+    const scope = shotScope; // "match" | "all"
 
     // Only load ALL matches when a player is selected (otherwise it is pointless + heavy)
     const shouldLoadAll = (scope === "all") && hasPlayerFilter();
@@ -425,18 +439,29 @@
   }
 
   function refreshShots() {
-    // if scope=all but no player is selected -> stay on match mode
-    if (scopeSel.property("value") === "all" && !hasPlayerFilter()) {
-      // silently downgrade to match
-      scopeSel.property("value", "match");
-    }
+    updateScopeButton();
     selectGameOrAll().catch(err => console.error("[shots] render failed:", err));
   }
 
   dropdownSel.on("change", refreshShots);
-  scopeSel.on("change", refreshShots);
+  scopeToggle.on("click", () => {
+    shotScope = shotScope === "match" ? "all" : "match";
+    updateScopeButton();
+    refreshShots();
+  });
+
+  clearBtn.on("click", () => {
+    currentPlayerFilter = { id: null, name: null };
+    try { localStorage.removeItem("radar:player-selected"); } catch {}
+    shotScope = "match";
+    updateScopeButton();
+    refreshShots();
+  });
 
   // init
-  loadMatchesIndex().then(refreshShots);
+  loadMatchesIndex().then(() => {
+    updateScopeButton();
+    refreshShots();
+  });
 
 })();
