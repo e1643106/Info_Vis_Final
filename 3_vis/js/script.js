@@ -27,60 +27,74 @@ const tooltip = d3.select("body")
     .style("opacity", 0)
     .style("pointer-events", "none");
 
-const files = [
-    "../Datasets-15-16season/liverpool2015-08-09.csv",
-    "../Datasets-15-16season/liverpool2015-08-17.csv",
-    "../Datasets-15-16season/liverpool2015-08-24.csv",
-    "../Datasets-15-16season/liverpool2015-08-29.csv",
-    "../Datasets-15-16season/liverpool2015-09-12.csv",
-    "../Datasets-15-16season/liverpool2015-09-20.csv",
-    "../Datasets-15-16season/liverpool2015-09-26.csv",
-    "../Datasets-15-16season/liverpool2015-10-04.csv",
-    "../Datasets-15-16season/liverpool2015-10-17.csv",
-    "../Datasets-15-16season/liverpool2015-10-25.csv",
-    "../Datasets-15-16season/liverpool2015-10-31.csv",
-    "../Datasets-15-16season/liverpool2015-11-08.csv",
-    "../Datasets-15-16season/liverpool2015-11-21.csv",
-    "../Datasets-15-16season/liverpool2015-11-29.csv",
-    "../Datasets-15-16season/liverpool2015-12-06.csv",
-    "../Datasets-15-16season/liverpool2015-12-13.csv",
-    "../Datasets-15-16season/liverpool2015-12-20.csv",
-    "../Datasets-15-16season/liverpool2015-12-26.csv",
-    "../Datasets-15-16season/liverpool2015-12-30.csv",
-    "../Datasets-15-16season/liverpool2016-01-02.csv",
-    "../Datasets-15-16season/liverpool2016-01-13.csv",
-    "../Datasets-15-16season/liverpool2016-01-17.csv",
-    "../Datasets-15-16season/liverpool2016-01-23.csv",
-    "../Datasets-15-16season/liverpool2016-02-02.csv",
-    "../Datasets-15-16season/liverpool2016-02-06.csv",
-    "../Datasets-15-16season/liverpool2016-02-14.csv",
-    "../Datasets-15-16season/liverpool2016-03-02.csv",
-    "../Datasets-15-16season/liverpool2016-03-06.csv",
-    "../Datasets-15-16season/liverpool2016-03-20.csv",
-    "../Datasets-15-16season/liverpool2016-04-02.csv",
-    "../Datasets-15-16season/liverpool2016-04-10.csv",
-    "../Datasets-15-16season/liverpool2016-04-17.csv",
-    "../Datasets-15-16season/liverpool2016-04-20.csv",
-    "../Datasets-15-16season/liverpool2016-04-23.csv",
-    "../Datasets-15-16season/liverpool2016-05-01.csv",
-    "../Datasets-15-16season/liverpool2016-05-08.csv",
-    "../Datasets-15-16season/liverpool2016-05-11.csv",
-    "../Datasets-15-16season/liverpool2016-05-15.csv"
-];
+const shotsDataBase = document.body.dataset.shotsBase || "../jsFootball/data";
+const resolveShotFile = (value) => {
+    if (!value) {
+        return `${shotsDataBase}/liverpool20150809stokecity.csv`;
+    }
+    if (value.includes("/")) {
+        return value;
+    }
+    return `${shotsDataBase}/${value}`;
+};
+
+const dropdown = document.querySelector("#gameDropdown");
+const files = dropdown
+    ? Array.from(dropdown.querySelectorAll("option")).map(option => resolveShotFile(option.value))
+    : [
+        "liverpool20150809stokecity.csv",
+        "liverpool20150817afcbournemouth.csv",
+        "liverpool20150824arsenal.csv",
+        "liverpool20150829westhamunited.csv",
+        "liverpool20150912manchesterunited.csv",
+        "liverpool20150920norwichcity.csv",
+        "liverpool20150926astonvilla.csv",
+        "liverpool20151004everton.csv",
+        "liverpool20151017tottenhamhotspur.csv",
+        "liverpool20151025southhampton.csv",
+        "liverpool20151031chelsea.csv",
+        "liverpool20151108crystalpalace.csv",
+        "liverpool20151121manchestercity.csv",
+        "liverpool20151129swanseacity.csv",
+        "liverpool20151206newcastleunited.csv",
+        "liverpool20151213westbromwichalbion.csv",
+        "liverpool20151220watford.csv",
+        "liverpool20151226leicestercity.csv",
+        "liverpool20151230sunderland.csv",
+        "liverpool20160102westhamunited.csv",
+        "liverpool20160113arsenal.csv",
+        "liverpool20160117manchesterunited.csv",
+        "liverpool20160123norwichcity.csv",
+        "liverpool20160202leicestercity.csv",
+        "liverpool20160206sunderland.csv",
+        "liverpool20160214astonvilla.csv",
+        "liverpool20160302manchestercity.csv",
+        "liverpool20160306crystalpalace.csv",
+        "liverpool20160320southampton.csv",
+        "liverpool20160402tottenhamhotspur.csv",
+        "liverpool20160410stokecity.csv",
+        "liverpool20160417afcbournemouth.csv",
+        "liverpool20160420everton.csv",
+        "liverpool20160423newcastleunited.csv",
+        "liverpool20160501swanseacity.csv",
+        "liverpool20160508watford.csv",
+        "liverpool20160511chelsea.csv",
+        "liverpool20160515westbromwichalbion.csv"
+    ].map(file => resolveShotFile(file));
 
 Promise.all(files.map(f => d3.csv(f, d3.autoType))).then(allFiles => {
 
     const rawData = allFiles.flat();
 
     const goals = rawData.filter(d =>
-        d.type === "Shot" &&
-        d.shot_outcome === "Goal"
+        d.shot_outcome === "Goal" &&
+        (d.type === "Shot" || d.type === undefined)
     );
 
     const goalsByPlayer = d3.rollup(
         goals,
         v => v.length,
-        d => d.player || "Unknown"
+        d => d.player || d.player_name || "Unknown"
     );
 
     fullData = Array.from(goalsByPlayer, ([player, goals]) => ({ player, goals }));

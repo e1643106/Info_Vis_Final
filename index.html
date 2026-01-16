@@ -280,6 +280,66 @@
       font-size: 22px;
     }
 
+    .goals-section {
+      max-width: 1280px;
+      margin: 32px auto 0;
+      background: #0c1326;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .goals-section h2 {
+      text-align: center;
+      font-size: 22px;
+      margin-top: 0;
+    }
+
+    #controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px 24px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .control-block label {
+      font-size: 12px;
+      color: #9ba3d9;
+    }
+
+    #goalValue {
+      color: #f5f5ff;
+      font-weight: 600;
+    }
+
+    #goalSlider {
+      width: 260px;
+    }
+
+    #sortButton {
+      padding: 6px 14px;
+      font-size: 13px;
+      border-radius: 999px;
+      border: 1px solid #394b7a;
+      background: #0c1326;
+      color: #f5f5ff;
+      cursor: pointer;
+    }
+
+    #sortButton:hover {
+      background: #151f3d;
+    }
+
+    #chart {
+      overflow-x: auto;
+    }
+
+    #chart svg text {
+      fill: #f5f5ff;
+    }
+
     #gameDropdown {
       display: block;
       margin: 20px auto;
@@ -423,10 +483,31 @@
     <div id="pitch" style="text-align: center;"></div>
   </section>
 
+  <section class="goals-section">
+    <h2>Goal Totals by Player</h2>
+
+    <div id="controls">
+      <div class="control-block">
+        <label>
+          <strong>Minimum goals:</strong>
+          <span id="goalValue">0</span>
+        </label><br>
+        <input type="range" id="goalSlider" min="0" step="1" value="0">
+      </div>
+
+      <div class="control-block">
+        <button id="sortButton">Sort: Descending</button>
+      </div>
+    </div>
+
+    <div id="chart"></div>
+  </section>
+
   <div id="tooltip" class="tooltip"></div>
 
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="A3_G1_radar/js/script.js"></script>
   <script src="jsFootball/script.js"></script>
+  <script src="3_vis/js/script.js"></script>
 </body>
 </html>
