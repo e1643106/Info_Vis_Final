@@ -205,8 +205,8 @@
       height:800px;
       max-width:100%;
       margin:14px auto 18px;
-      border:1px solid rgba(255,255,255,0.10);
-      border-radius:16px;
+      border:0px solid rgba(255,255,255,0.10);
+      border-radius:5px;
       overflow:hidden;
     }
 
@@ -250,7 +250,6 @@
           <svg id="radar-svg" width="820" height="560"></svg>
           <div id="tooltip" class="tooltip"></div>
 
-          <!-- This is the box you said must stay -->
           <div class="explain">
             <p><b>Overview</b> shows 4 main categories (Finishing, Creation, Progression, Dribbling).</p>
             <p>Values are <b>percentiles </b> compared to other Liverpool players in the dataset.</p>
@@ -319,10 +318,34 @@
       <div id="pitch"></div>
     </section>
 
-  </div>
+    <!-- BAR PLOT -->
+    <section class="card shots-card">
+      <div class="shots-header">
+        <h2>Goals by Player</h2>
+
+        <div class="shots-controls">
+          <div class="control">
+            <label for="goalSlider">Min goals:</label>
+            <input id="goalSlider" type="range" value="0" step="1" />
+            <span id="goalValue">0</span>
+          </div>
+
+          <div class="control">
+            <button id="sortButton" class="toggle-btn is-all" type="button">
+              Sort: Descending
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-inner">
+        <div id="chart"></div>
+      </div>
+    </section>
 
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <script src="../js/radar.js"></script>
   <script src="../js/shots.js"></script>
+  <script src="../js/chart.js"></script>
 </body>
 </html>
