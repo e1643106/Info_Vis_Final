@@ -257,16 +257,26 @@ function setSelectedPlayer(playerId) {
   drawMainRadar(player);
   broadcastPlayerSelection(player);
 }
+const PLAYER_CHANNEL = "liverpool-player-selection-v1";
+const bc = ("BroadcastChannel" in window) ? new BroadcastChannel(PLAYER_CHANNEL) : null;
 
 function broadcastPlayerSelection(player) {
   if (!player) return;
 
-  window.dispatchEvent(new CustomEvent("radar:player-selected", {
-    detail: {
-      playerId: player.player_id,
-      playerName: player.player_name
-    }
-  }));
+  const detail = {
+    playerId: player.player_id,
+    playerName: player.player_name,
+    ts: Date.now()
+  };
+
+  // 1) Same-page
+  window.dispatchEvent(new CustomEvent("radar:player-selected", { detail }));
+
+  // 2) iFrame/Tab (same origin)
+  if (bc) bc.postMessage(detail);
+
+  // 3) Fallback (manche Setups)
+  try { localStorage.setItem("radar:player-selected", JSON.stringify(detail)); } catch {}
 }
 
 function setupRadarTypeToggle() {
