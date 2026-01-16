@@ -1,67 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Liverpool Shots</title>
-	<link rel="stylesheet" type="text/css" href="./style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liverpool Shots</title>
+  <style>
+    body{background:#050816; color:white; font-family:system-ui; margin:0; padding:20px;}
+    #gameDropdown{display:block; margin: 14px auto; font-size:16px; padding:8px 10px;}
+    #pitch{width:1200px; height:800px; max-width:100%; margin:0 auto; border:1px solid rgba(255,255,255,0.1); border-radius:14px; overflow:hidden;}
+    h1{text-align:center; margin:8px 0 16px;}
+  </style>
 </head>
-<body>
-	<h1 class="responsive-svg-container" style="text-align:center; color: rgb(255, 255, 255);">
-		Pitch Map of Liverpool Shots
-	</h1>
 
+<body data-shots-base="data">
+  <h1>Pitch Map of Liverpool Shots</h1>
 
-	<select id="gameDropdown">
-		<option value="data/liverpool20150809stokecity.csv"> Liverpool - Stoke City (09/08/2015)</option>			<!--https://d3-graph-gallery.com/graph/interactivity_button.html-->
-		<option value="data/liverpool20150817afcbournemouth.csv"> Liverpool - AFC Bournemouth (17/08/2015)</option>
-		<option value="data/liverpool20150824arsenal.csv"> Liverpool - Arsenal (24/08/2015)</option>
-		<option value="data/liverpool20150829westhamunited.csv"> Liverpool - West Ham United (29/08/2015)</option>
-		<option value="data/liverpool20150912manchesterunited.csv"> Liverpool - Manchester United (12/09/2015)</option>
-		<option value="data/liverpool20150920norwichcity.csv"> Liverpool - Norwich City (20/09/2015)</option>
-		<option value="data/liverpool20150926astonvilla.csv"> Liverpool - Aston Villa (26/09/2015)</option>
-		<option value="data/liverpool20151004everton.csv"> Liverpool - Everton (04/10/2015)</option>
-		<option value="data/liverpool20151017tottenhamhotspur.csv"> Liverpool - Tottenham Hotspur (17/10/2015)</option>
-		<option value="data/liverpool20151025southhampton.csv"> Liverpool - Southampton (25/10/2015)</option>
-		<option value="data/liverpool20151031chelsea.csv"> Liverpool - Chelsea (31/10/2015)</option>
-		<option value="data/liverpool20151108crystalpalace.csv"> Liverpool - Crystal Palace (08/11/2015)</option>
-		<option value="data/liverpool20151121manchestercity.csv"> Liverpool - Manchester City (21/11/2015)</option>
-		<option value="data/liverpool20151129swanseacity.csv"> Liverpool - Swansea City (29/11/2015)</option>
-		<option value="data/liverpool20151206newcastleunited.csv"> Liverpool - Newcastle United (06/12/2015)</option>
-		<option value="data/liverpool20151213westbromwichalbion.csv"> Liverpool - West Bromwich Albion (13/12/2015)</option>
-		<option value="data/liverpool20151220watford.csv"> Liverpool - Watford (20/12/2015)</option>
-		<option value="data/liverpool20151226leicestercity.csv"> Liverpool - Leicester City (26/12/2015)</option>
-		<option value="data/liverpool20151230sunderland.csv"> Liverpool - Sunderland (30/12/2015)</option>
-		<option value="data/liverpool20160102westhamunited.csv"> Liverpool - West Ham United (02/01/2016)</option>
-		<option value="data/liverpool20160113arsenal.csv"> Liverpool - Arsenal (13/01/2016)</option>
-		<option value="data/liverpool20160117manchesterunited.csv"> Liverpool - Manchester United (17/01/2016)</option>
-		<option value="data/liverpool20160123norwichcity.csv"> Liverpool - Norwich City (23/01/2016)</option>
-		<option value="data/liverpool20160202leicestercity.csv"> Liverpool - Leicester City (02/02/2016)</option>
-		<option value="data/liverpool20160206sunderland.csv"> Liverpool - Sunderland (06/02/2016)</option>
-		<option value="data/liverpool20160214astonvilla.csv"> Liverpool - Aston Villa (14/02/2016)</option>
-		<option value="data/liverpool20160302manchestercity.csv"> Liverpool - Manchester City (30/02/2016)</option>
-		<option value="data/liverpool20160306crystalpalace.csv"> Liverpool - Crystal Palace (06/03/2016)</option>
-		<option value="data/liverpool20160320southampton.csv"> Liverpool - Southampton (20/03/2016)</option>
-		<option value="data/liverpool20160402tottenhamhotspur.csv"> Liverpool - Tottenham Hotspur (02/04/2016)</option>
-		<option value="data/liverpool20160410stokecity.csv"> Liverpool - Stoke City (10/04/2016)</option>
-		<option value="data/liverpool20160417afcbournemouth.csv"> Liverpool - AFC Bournemouth (17/04/2016)</option>
-		<option value="data/liverpool20160420everton.csv"> Liverpool - Everton (20/04/2016)</option>
-		<option value="data/liverpool20160423newcastleunited.csv"> Liverpool - Newcastle United (23/04/2016)</option>
-		<option value="data/liverpool20160501swanseacity.csv"> Liverpool - Swansea City (01/05/2016)</option>
-		<option value="data/liverpool20160508watford.csv"> Liverpool - Watford (08/05/2016)</option>
-		<option value="data/liverpool20160511chelsea.csv"> Liverpool - Chelsea (11/05/2016)</option>
-		<option value="data/liverpool20160515westbromwichalbion.csv"> Liverpool - West Bromwich Albion (15/05/2016)</option>
-	</select>
+  <select id="gameDropdown">
+    <option value="liverpool20150809stokecity.csv">Liverpool - Stoke City (09/08/2015)</option>
+  </select>
 
-	<style>
-		#gameDropdown{display: block; margin: 20px auto; font-size:20px;}
-	</style>
+  <div id="pitch"></div>
 
-	<div id="pitch" style="text-align: center;"></div>
-	<style> body{background-color: #050816;}</style>
-	
-
-	<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-	<script src="./script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <!-- IMPORTANT: new filename -->
+  <script src="./shots.js"></script>
 </body>
 </html>

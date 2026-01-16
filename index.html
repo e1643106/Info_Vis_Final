@@ -1,513 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liverpool Offense Radar & Shot Map</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Liverpool Offense Analysis</title>
+
   <style>
-    * {
-      box-sizing: border-box;
+    :root{
+      --bg0:#050816;
+      --bg1:#0a1230;
+      --glass:rgba(255,255,255,0.05);
+      --glass2:rgba(255,255,255,0.08);
+      --stroke:rgba(255,255,255,0.12);
+      --stroke2:rgba(255,255,255,0.18);
+      --text:#e9ecff;
+      --muted:#b9c0ff;
+      --accent:#ff5c7a;
+      --accent2:#ff8aa0;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 60% 20%, rgba(120,140,255,0.18), transparent 60%),
+        radial-gradient(700px 500px at 30% 70%, rgba(255,120,180,0.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), #02030b 75%);
+    }
+    .page{max-width:1280px; margin:0 auto; padding:28px 18px 60px;}
+    header{text-align:center; margin-bottom:18px;}
+    header h1{margin:0; font-size:40px; letter-spacing:.2px;}
+    header .sub{margin-top:6px; color:var(--muted); font-size:13px}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap:18px;
+      align-items:start;
     }
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #050816;
-      color: #f5f5ff;
-      margin: 0;
-      padding: 0 16px 48px;
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border:1px solid var(--stroke);
+      border-radius:18px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+      overflow:hidden;
     }
 
-    h1, h2 {
-      margin: 0 0 0.5rem 0;
-      letter-spacing: 0.03em;
+    .card-inner{padding:18px;}
+    .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+    .row + .row{margin-top:10px;}
+    label{color:var(--text); opacity:.95; font-size:14px; min-width:58px;}
+    select{
+      background:rgba(255,255,255,0.06);
+      border:1px solid var(--stroke2);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      outline:none;
+      min-width:280px;
+    }
+    select:focus{border-color:rgba(255,255,255,0.28)}
+    option{color:#111;}
+
+    .segmented{
+      display:flex; gap:0;
+      background:rgba(255,255,255,0.05);
+      border:1px solid var(--stroke2);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .segmented-btn{
+      appearance:none;
+      border:0;
+      background:transparent;
+      color:var(--text);
+      padding:9px 14px;
+      font-size:14px;
+      cursor:pointer;
+      opacity:.95;
+    }
+    .segmented-btn:hover{background:rgba(255,255,255,0.06)}
+    .segmented-btn.active{
+      background:linear-gradient(90deg, var(--accent), var(--accent2));
+      color:#16050a;
+      font-weight:700;
     }
 
-    h1 {
-      font-size: 28px;
-      text-align: center;
-      margin-top: 24px;
+    /* Radar */
+    #radar-svg{display:block; margin:10px auto 0; width:100%; height:auto;}
+    .grid-line{fill:none; stroke:rgba(255,255,255,0.12); stroke-width:1;}
+    .grid-level-label{fill:rgba(255,255,255,0.65); font-size:12px}
+    .axis-label{fill:rgba(255,255,255,0.92); font-size:14px; font-weight:600}
+    .radar-area{fill:rgba(255,92,122,0.22); stroke:rgba(255,92,122,0.95); stroke-width:2;}
+    .radar-circle{filter: drop-shadow(0 0 6px rgba(255,92,122,0.35));}
+    .radar-title{fill:rgba(255,255,255,0.95); font-size:18px; font-weight:800}
+    .radar-subtitle{fill:rgba(255,255,255,0.70); font-size:13px; font-weight:600}
+
+    .tooltip{
+      position:fixed;
+      pointer-events:none;
+      opacity:0;
+      background:rgba(0,0,0,0.75);
+      color:white;
+      padding:6px 8px;
+      border-radius:10px;
+      font-size:12px;
+      border:1px solid rgba(255,255,255,0.18);
+      transform: translateZ(0);
+      z-index:9999;
     }
 
-    p {
-      margin-top: 0;
-      margin-bottom: 1rem;
-      color: #c0c4ff;
-      font-size: 14px;
+    /* Top lists */
+    .topHead{padding:16px 18px 10px;}
+    .topHead h2{margin:0; font-size:18px}
+    .topHead .muted{margin:4px 0 0; color:var(--muted); font-size:12px}
+    .topGrid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      padding:0 18px 18px;
+    }
+    .topBox{
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:14px;
+      padding:10px 10px 12px;
+    }
+    .topBox h3{margin:0 0 6px; font-size:13px; color:rgba(255,255,255,0.9)}
+    .topBox ol{margin:0; padding-left:0; list-style:none;}
+    .top-item{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      padding:7px 8px;
+      border-radius:10px;
+      cursor:pointer;
+      border:1px solid transparent;
+    }
+    .top-item:hover{background:rgba(255,255,255,0.05)}
+    .top-item.active{
+      background:linear-gradient(90deg, rgba(255,92,122,0.95), rgba(255,138,160,0.95));
+      color:#16050a;
+      font-weight:800;
+      border-color:rgba(255,255,255,0.20);
+    }
+    .top-item .name{font-size:13px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+    .top-item .score{font-size:12px; opacity:.95}
+
+    /* Explain box */
+    .explain{
+      margin-top:14px;
+      padding:14px 16px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:14px;
+    }
+    .explain h3{margin:0 0 8px; font-size:18px}
+    .explain p{margin:6px 0; color:rgba(255,255,255,0.82); line-height:1.45}
+    .explain b{color:rgba(255,255,255,0.95)}
+
+    /* Shots card */
+    .shots-card{margin-top:18px;}
+    .shots-header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; padding:14px 18px; border-bottom:1px solid var(--stroke);
+      background:linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    }
+    .shots-header h2{margin:0; font-size:18px;}
+    .shots-controls{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+    .shots-controls .control{display:flex; align-items:center; gap:8px;}
+    .shots-controls label{min-width:auto; font-size:13px; opacity:.9}
+    .shots-controls select{min-width:280px; padding:8px 10px; border-radius:12px;}
+
+    #pitch{
+      width:1200px;
+      height:800px;
+      max-width:100%;
+      margin:14px auto 18px;
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:16px;
+      overflow:hidden;
     }
 
-    .layout {
-      display: flex;
-      gap: 24px;
-      align-items: flex-start;
-      max-width: 1360px;
-      margin: 24px auto 32px;
-      flex-wrap: wrap;
-    }
-
-    .left-panel {
-      flex: 2 1 620px;
-    }
-
-    .right-column {
-      flex: 2 1 420px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .right-column h2 {
-      margin: 0 0 0.25rem 0;
-      font-size: 18px;
-    }
-
-    .right-column p.note {
-      margin: 0 0 0.75rem 0;
-      font-size: 12px;
-      color: #9ba3d9;
-    }
-
-    .right-columns {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 4px;
-    }
-
-    .category-card {
-      background: #0c1326;
-      border-radius: 12px;
-      padding: 10px 12px;
-      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-      min-width: 0;
-    }
-
-    .category-card h3 {
-      margin: 0 0 0.25rem 0;
-      font-size: 13px;
-      color: #c0c4ff;
-    }
-
-    .controls {
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 14px;
-      flex-wrap: wrap;
-    }
-
-    .controls-label {
-      font-size: 12px;
-      color: #9ba3d9;
-    }
-
-    label {
-      margin-right: 0.25rem;
-    }
-
-    select {
-      padding: 0.25rem 0.5rem;
-      font-size: 14px;
-      border-radius: 6px;
-      border: 1px solid #394b7a;
-      background: #0c1326;
-      color: #f5f5ff;
-    }
-
-    #radar-svg {
-      display: block;
-      margin: 8px 0 0;
-      background: #0c1326;
-      border-radius: 18px;
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
-      width: 620px;
-      height: 620px;
-      max-width: 100%;
-    }
-
-    .axis-label {
-      fill: #f5f5ff;
-      font-size: 12px;
-      text-anchor: middle;
-    }
-
-    .grid-line {
-      stroke: #343c5c;
-      stroke-width: 1;
-      fill: none;
-    }
-
-    .grid-level-label {
-      fill: #8a91c2;
-      font-size: 10px;
-    }
-
-    .radar-area {
-      fill: rgba(255, 99, 132, 0.35);
-      stroke: #ff6384;
-      stroke-width: 2;
-    }
-
-    .radar-circle {
-      stroke: #11182a;
-      stroke-width: 1.5;
-    }
-
-    .radar-title {
-      font-size: 16px;
-      fill: #f5f5ff;
-      text-anchor: middle;
-    }
-
-    .radar-subtitle {
-      font-size: 12px;
-      fill: #9ba3d9;
-      text-anchor: middle;
-    }
-
-    .top-list {
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
-      font-size: 13px;
-    }
-
-    .top-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 8px;
-      margin-bottom: 4px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.15s;
-    }
-
-    .top-item:hover {
-      background: #151f3d;
-      transform: translateY(-1px);
-    }
-
-    .top-item.active {
-      background: linear-gradient(90deg, #ff6384, #ff9d76);
-      color: #050816;
-      font-weight: 600;
-    }
-
-    .top-item .name {
-      max-width: 200px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .top-item .score {
-      font-variant-numeric: tabular-nums;
-      font-size: 12px;
-      opacity: 0.9;
-    }
-
-    .segmented {
-      display: inline-flex;
-      background: #0c1326;
-      border-radius: 999px;
-      padding: 2px;
-      border: 1px solid #394b7a;
-    }
-
-    .segmented-btn {
-      border: none;
-      background: transparent;
-      color: #ffff;
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .segmented-btn.active {
-      background: linear-gradient(120deg, #ff6384, #ff9d76);
-      color: #050816;
-      font-weight: 600;
-    }
-
-    .tooltip {
-      position: fixed;
-      pointer-events: none;
-      background: rgba(5, 8, 22, 0.95);
-      color: #ffff;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      z-index: 9999;
-      opacity: 0;
-      transform: none;
-    }
-
-    .info-box {
-      margin-top: 8px;
-      margin-bottom: 12px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: rgba(12, 19, 38, 0.95);
-      border: 1px solid #394b7a;
-      font-size: 12px;
-      color: #c0c4ff;
-      max-width: 620px;
-      line-height: 1.5;
-    }
-
-    .info-box b {
-      color: #f5f5ff;
-    }
-
-    .info-box ul {
-      padding-left: 18px;
-      margin: 6px 0 0 0;
-    }
-
-    .shots-section {
-      max-width: 1280px;
-      margin: 0 auto;
-      background: #0c1326;
-      border-radius: 18px;
-      padding: 24px;
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
-    }
-
-    .shots-section h2 {
-      text-align: center;
-      font-size: 22px;
-    }
-
-    .goals-section {
-      max-width: 1280px;
-      margin: 32px auto 0;
-      background: #0c1326;
-      border-radius: 18px;
-      padding: 24px;
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
-    }
-
-    .goals-section h2 {
-      text-align: center;
-      font-size: 22px;
-      margin-top: 0;
-    }
-
-    #controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px 24px;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-
-    .control-block label {
-      font-size: 12px;
-      color: #9ba3d9;
-    }
-
-    #goalValue {
-      color: #f5f5ff;
-      font-weight: 600;
-    }
-
-    #goalSlider {
-      width: 260px;
-    }
-
-    #sortButton {
-      padding: 6px 14px;
-      font-size: 13px;
-      border-radius: 999px;
-      border: 1px solid #394b7a;
-      background: #0c1326;
-      color: #f5f5ff;
-      cursor: pointer;
-    }
-
-    #sortButton:hover {
-      background: #151f3d;
-    }
-
-    #chart {
-      overflow-x: auto;
-    }
-
-    #chart svg text {
-      fill: #f5f5ff;
-    }
-
-    #gameDropdown {
-      display: block;
-      margin: 20px auto;
-      font-size: 16px;
-    }
-
-    #pitch {
-      width: 1200px;
-      height: 800px;
-      margin: 0 auto;
-      background-image: url("jsFootball/footballpitch2.png");
-      background-size: cover;
-      text-align: center;
-    }
-
-    .responsive-svg-container {
-      margin-right: auto;
-      margin-left: auto;
-      width: 100%;
-      max-width: 1000px;
+    @media (max-width: 1050px){
+      .grid{grid-template-columns:1fr;}
+      select{min-width:240px}
+      #pitch{height:700px}
     }
   </style>
 </head>
-<body data-radar-base="A3_G1_radar/data" data-shots-base="jsFootball/data">
-  <h1>Liverpool Offense Radar & Shot Map</h1>
-  <p class="responsive-svg-container" style="text-align:center;">
-    Explore player attacking profiles alongside match-by-match shot locations.
-  </p>
 
-  <div class="layout">
-    <div class="left-panel">
-      <h2>Liverpool Offensiv Radar</h2>
-      <div class="info-box">
-        <b>How the four radar categories are computed</b><br>
-        All metrics are first normalised within the team and then
-        converted to percentiles (0–100). Each category is an average of
-        several underlying components:
-        <ul>
-          <li><b>Finishing &amp; xG</b> – goals vs. expected goals per shot,
-              plus share of touches in the box and in the deep zone.</li>
-          <li><b>Chance Creation</b> – key passes, assists, passes into the box
-              and into the deep zone, each measured per touch in the final third.</li>
-          <li><b>Ball Progression</b> – passes and carries that move the ball
-              into the final third, with extra weight for actions ending close to goal.</li>
-          <li><b>Dribbling &amp; On-ball</b> – dribble success rate, fouls won
-              in the final third, and a “clean on-ball” score that penalises
-              miscontrols and being dispossessed.</li>
-        </ul>
-      </div>
+<body data-radar-base="../data" data-shots-base="../data">
+  <div class="page">
 
-      <div class="controls">
-        <label for="player-select">Player:</label>
-        <select id="player-select"></select>
-      </div>
+    <header>
+      <h1>Liverpool Offense Radar & Shot Map</h1>
+      <div class="sub">Select a player in the radar – the shot map filters automatically.</div>
+    </header>
 
-      <div class="controls">
-        <span class="controls-label">Radar:</span>
-        <div class="segmented" id="radar-type-toggle">
-          <button class="segmented-btn active" data-radar="overview">Overview</button>
-          <button class="segmented-btn" data-radar="finishing">Finishing</button>
-          <button class="segmented-btn" data-radar="creation">Creation</button>
-          <button class="segmented-btn" data-radar="progression">Progression</button>
-          <button class="segmented-btn" data-radar="dribbling">Dribbling</button>
+    <div class="grid">
+
+      <!-- LEFT: RADAR -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="row">
+            <label for="player-select">Player:</label>
+            <select id="player-select"></select>
+          </div>
+
+          <div class="row">
+            <label>Radar:</label>
+            <div id="radar-type-toggle" class="segmented">
+              <button class="segmented-btn active" data-radar="overview">Overview</button>
+              <button class="segmented-btn" data-radar="finishing">Finishing</button>
+              <button class="segmented-btn" data-radar="creation">Creation</button>
+              <button class="segmented-btn" data-radar="progression">Progression</button>
+              <button class="segmented-btn" data-radar="dribbling">Dribbling</button>
+            </div>
+          </div>
+
+          <svg id="radar-svg" width="820" height="560"></svg>
+          <div id="tooltip" class="tooltip"></div>
+
+          <!-- This is the box you said must stay -->
+          <div class="explain">
+            <p><b>Overview</b> shows 4 main categories (Finishing, Creation, Progression, Dribbling).</p>
+            <p>Values are <b>percentiles </b> compared to other Liverpool players in the dataset.</p>
+            <p>Higher = better rank within the team (not absolute performance).</p>
+            <p>Click a player in the <b>Top-10</b> lists or use the dropdown.</p>
+            <p>When a player is selected, the <b>shot map below</b> filters automatically.</p>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <svg id="radar-svg" width="620" height="600"></svg>
+      <!-- RIGHT: TOP-10 -->
+      <aside class="card">
+        <div class="topHead">
+          <h2>Top 10 per Category</h2>
+          <div class="muted">Based on within-team percentiles.</div>
+        </div>
+
+        <div class="topGrid">
+          <div class="topBox">
+            <h3>Finishing & xG</h3>
+            <ol id="top-finishing"></ol>
+          </div>
+
+          <div class="topBox">
+            <h3>Chance Creation</h3>
+            <ol id="top-creation"></ol>
+          </div>
+
+          <div class="topBox">
+            <h3>Ball Progression</h3>
+            <ol id="top-progression"></ol>
+          </div>
+
+          <div class="topBox">
+            <h3>Dribbling & On-Ball</h3>
+            <ol id="top-dribbling"></ol>
+          </div>
+        </div>
+      </aside>
+
     </div>
 
-    <div class="right-column">
-      <h2>Top 10 per Category</h2>
-      <p class="note">Based on within-team percentiles.</p>
+    <!-- SHOTS -->
+    <section class="card shots-card">
+      <div class="shots-header">
+        <h2>Pitch Map of Liverpool Shots</h2>
 
-      <div class="right-columns">
-        <div class="category-card">
-          <h3>Finishing &amp; xG</h3>
-          <ol id="top-finishing" class="top-list"></ol>
-        </div>
+        <div class="shots-controls">
+          <div class="control">
+            <label for="gameDropdown">Match:</label>
+            <select id="gameDropdown"></select>
+          </div>
 
-        <div class="category-card">
-          <h3>Chance Creation</h3>
-          <ol id="top-creation" class="top-list"></ol>
-        </div>
-
-        <div class="category-card">
-          <h3>Ball Progression</h3>
-          <ol id="top-progression" class="top-list"></ol>
-        </div>
-
-        <div class="category-card">
-          <h3>Dribbling &amp; On-Ball</h3>
-          <ol id="top-dribbling" class="top-list"></ol>
+          <div class="control">
+            <label for="shotScope">Player shots:</label>
+            <select id="shotScope">
+              <option value="match">This match only</option>
+              <option value="all">All matches (season)</option>
+            </select>
+          </div>
         </div>
       </div>
-    </div>
+
+      <div id="pitch"></div>
+    </section>
+
   </div>
 
-  <section class="shots-section">
-    <h2>Pitch Map of Liverpool Shots</h2>
-    <select id="gameDropdown">
-      <option value="liverpool20150809stokecity.csv"> Liverpool - Stoke City (09/08/2015)</option>
-      <option value="liverpool20150817afcbournemouth.csv"> Liverpool - AFC Bournemouth (17/08/2015)</option>
-      <option value="liverpool20150824arsenal.csv"> Liverpool - Arsenal (24/08/2015)</option>
-      <option value="liverpool20150829westhamunited.csv"> Liverpool - West Ham United (29/08/2015)</option>
-      <option value="liverpool20150912manchesterunited.csv"> Liverpool - Manchester United (12/09/2015)</option>
-      <option value="liverpool20150920norwichcity.csv"> Liverpool - Norwich City (20/09/2015)</option>
-      <option value="liverpool20150926astonvilla.csv"> Liverpool - Aston Villa (26/09/2015)</option>
-      <option value="liverpool20151004everton.csv"> Liverpool - Everton (04/10/2015)</option>
-      <option value="liverpool20151017tottenhamhotspur.csv"> Liverpool - Tottenham Hotspur (17/10/2015)</option>
-      <option value="liverpool20151025southhampton.csv"> Liverpool - Southampton (25/10/2015)</option>
-      <option value="liverpool20151031chelsea.csv"> Liverpool - Chelsea (31/10/2015)</option>
-      <option value="liverpool20151108crystalpalace.csv"> Liverpool - Crystal Palace (08/11/2015)</option>
-      <option value="liverpool20151121manchestercity.csv"> Liverpool - Manchester City (21/11/2015)</option>
-      <option value="liverpool20151129swanseacity.csv"> Liverpool - Swansea City (29/11/2015)</option>
-      <option value="liverpool20151206newcastleunited.csv"> Liverpool - Newcastle United (06/12/2015)</option>
-      <option value="liverpool20151213westbromwichalbion.csv"> Liverpool - West Bromwich Albion (13/12/2015)</option>
-      <option value="liverpool20151220watford.csv"> Liverpool - Watford (20/12/2015)</option>
-      <option value="liverpool20151226leicestercity.csv"> Liverpool - Leicester City (26/12/2015)</option>
-      <option value="liverpool20151230sunderland.csv"> Liverpool - Sunderland (30/12/2015)</option>
-      <option value="liverpool20160102westhamunited.csv"> Liverpool - West Ham United (02/01/2016)</option>
-      <option value="liverpool20160113arsenal.csv"> Liverpool - Arsenal (13/01/2016)</option>
-      <option value="liverpool20160117manchesterunited.csv"> Liverpool - Manchester United (17/01/2016)</option>
-      <option value="liverpool20160123norwichcity.csv"> Liverpool - Norwich City (23/01/2016)</option>
-      <option value="liverpool20160202leicestercity.csv"> Liverpool - Leicester City (02/02/2016)</option>
-      <option value="liverpool20160206sunderland.csv"> Liverpool - Sunderland (06/02/2016)</option>
-      <option value="liverpool20160214astonvilla.csv"> Liverpool - Aston Villa (14/02/2016)</option>
-      <option value="liverpool20160302manchestercity.csv"> Liverpool - Manchester City (30/02/2016)</option>
-      <option value="liverpool20160306crystalpalace.csv"> Liverpool - Crystal Palace (06/03/2016)</option>
-      <option value="liverpool20160320southampton.csv"> Liverpool - Southampton (20/03/2016)</option>
-      <option value="liverpool20160402tottenhamhotspur.csv"> Liverpool - Tottenham Hotspur (02/04/2016)</option>
-      <option value="liverpool20160410stokecity.csv"> Liverpool - Stoke City (10/04/2016)</option>
-      <option value="liverpool20160417afcbournemouth.csv"> Liverpool - AFC Bournemouth (17/04/2016)</option>
-      <option value="liverpool20160420everton.csv"> Liverpool - Everton (20/04/2016)</option>
-      <option value="liverpool20160423newcastleunited.csv"> Liverpool - Newcastle United (23/04/2016)</option>
-      <option value="liverpool20160501swanseacity.csv"> Liverpool - Swansea City (01/05/2016)</option>
-      <option value="liverpool20160508watford.csv"> Liverpool - Watford (08/05/2016)</option>
-      <option value="liverpool20160511chelsea.csv"> Liverpool - Chelsea (11/05/2016)</option>
-      <option value="liverpool20160515westbromwichalbion.csv"> Liverpool - West Bromwich Albion (15/05/2016)</option>
-    </select>
-
-    <div id="pitch" style="text-align: center;"></div>
-  </section>
-
-  <section class="goals-section">
-    <h2>Goal Totals by Player</h2>
-
-    <div id="controls">
-      <div class="control-block">
-        <label>
-          <strong>Minimum goals:</strong>
-          <span id="goalValue">0</span>
-        </label><br>
-        <input type="range" id="goalSlider" min="0" step="1" value="0">
-      </div>
-
-      <div class="control-block">
-        <button id="sortButton">Sort: Descending</button>
-      </div>
-    </div>
-
-    <div id="chart"></div>
-  </section>
-
-  <div id="tooltip" class="tooltip"></div>
-
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="A3_G1_radar/js/script.js"></script>
-  <script src="jsFootball/script.js"></script>
-  <script src="3_vis/js/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="../js/radar.js"></script>
+  <script src="../js/shots.js"></script>
 </body>
 </html>

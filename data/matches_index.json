@@ -1,0 +1,192 @@
+[
+  {
+    "file": "liverpool20150809stokecity.csv",
+    "label": "Liverpool - Stoke City (09/08/2015)",
+    "dateKey": "20150809"
+  },
+  {
+    "file": "liverpool20150817afcbournemouth.csv",
+    "label": "Liverpool - AFC Bournemouth (17/08/2015)",
+    "dateKey": "20150817"
+  },
+  {
+    "file": "liverpool20150824arsenal.csv",
+    "label": "Liverpool - Arsenal (24/08/2015)",
+    "dateKey": "20150824"
+  },
+  {
+    "file": "liverpool20150829westhamunited.csv",
+    "label": "Liverpool - West Ham United (29/08/2015)",
+    "dateKey": "20150829"
+  },
+  {
+    "file": "liverpool20150912manchesterunited.csv",
+    "label": "Liverpool - Manchester United (12/09/2015)",
+    "dateKey": "20150912"
+  },
+  {
+    "file": "liverpool20150920norwichcity.csv",
+    "label": "Liverpool - Norwich City (20/09/2015)",
+    "dateKey": "20150920"
+  },
+  {
+    "file": "liverpool20150926astonvilla.csv",
+    "label": "Liverpool - Astonvilla (26/09/2015)",
+    "dateKey": "20150926"
+  },
+  {
+    "file": "liverpool20151004everton.csv",
+    "label": "Liverpool - Everton (04/10/2015)",
+    "dateKey": "20151004"
+  },
+  {
+    "file": "liverpool20151017tottenhamhotspur.csv",
+    "label": "Liverpool - Tottenham Hotspur (17/10/2015)",
+    "dateKey": "20151017"
+  },
+  {
+    "file": "liverpool20151025southhampton.csv",
+    "label": "Liverpool - Southhampton (25/10/2015)",
+    "dateKey": "20151025"
+  },
+  {
+    "file": "liverpool20151031chelsea.csv",
+    "label": "Liverpool - Chelsea (31/10/2015)",
+    "dateKey": "20151031"
+  },
+  {
+    "file": "liverpool20151108crystalpalace.csv",
+    "label": "Liverpool - Crystal Palace (08/11/2015)",
+    "dateKey": "20151108"
+  },
+  {
+    "file": "liverpool20151121manchestercity.csv",
+    "label": "Liverpool - Manchester City (21/11/2015)",
+    "dateKey": "20151121"
+  },
+  {
+    "file": "liverpool20151129swanseacity.csv",
+    "label": "Liverpool - Swansea City (29/11/2015)",
+    "dateKey": "20151129"
+  },
+  {
+    "file": "liverpool20151206newcastleunited.csv",
+    "label": "Liverpool - Newcastle United (06/12/2015)",
+    "dateKey": "20151206"
+  },
+  {
+    "file": "liverpool20151213westbromwichalbion.csv",
+    "label": "Liverpool - West Bromwich Albion (13/12/2015)",
+    "dateKey": "20151213"
+  },
+  {
+    "file": "liverpool20151220watford.csv",
+    "label": "Liverpool - Watford (20/12/2015)",
+    "dateKey": "20151220"
+  },
+  {
+    "file": "liverpool20151226leicestercity.csv",
+    "label": "Liverpool - Leicester City (26/12/2015)",
+    "dateKey": "20151226"
+  },
+  {
+    "file": "liverpool20151230sunderland.csv",
+    "label": "Liverpool - Sunderland (30/12/2015)",
+    "dateKey": "20151230"
+  },
+  {
+    "file": "liverpool20160102westhamunited.csv",
+    "label": "Liverpool - West Ham United (02/01/2016)",
+    "dateKey": "20160102"
+  },
+  {
+    "file": "liverpool20160113arsenal.csv",
+    "label": "Liverpool - Arsenal (13/01/2016)",
+    "dateKey": "20160113"
+  },
+  {
+    "file": "liverpool20160117manchesterunited.csv",
+    "label": "Liverpool - Manchester United (17/01/2016)",
+    "dateKey": "20160117"
+  },
+  {
+    "file": "liverpool20160123norwichcity.csv",
+    "label": "Liverpool - Norwich City (23/01/2016)",
+    "dateKey": "20160123"
+  },
+  {
+    "file": "liverpool20160202leicestercity.csv",
+    "label": "Liverpool - Leicester City (02/02/2016)",
+    "dateKey": "20160202"
+  },
+  {
+    "file": "liverpool20160206sunderland.csv",
+    "label": "Liverpool - Sunderland (06/02/2016)",
+    "dateKey": "20160206"
+  },
+  {
+    "file": "liverpool20160214astonvilla.csv",
+    "label": "Liverpool - Astonvilla (14/02/2016)",
+    "dateKey": "20160214"
+  },
+  {
+    "file": "liverpool20160302manchestercity.csv",
+    "label": "Liverpool - Manchester City (02/03/2016)",
+    "dateKey": "20160302"
+  },
+  {
+    "file": "liverpool20160306crystalpalace.csv",
+    "label": "Liverpool - Crystal Palace (06/03/2016)",
+    "dateKey": "20160306"
+  },
+  {
+    "file": "liverpool20160320southampton.csv",
+    "label": "Liverpool - Southampton (20/03/2016)",
+    "dateKey": "20160320"
+  },
+  {
+    "file": "liverpool20160402tottenhamhotspur.csv",
+    "label": "Liverpool - Tottenham Hotspur (02/04/2016)",
+    "dateKey": "20160402"
+  },
+  {
+    "file": "liverpool20160410stokecity.csv",
+    "label": "Liverpool - Stoke City (10/04/2016)",
+    "dateKey": "20160410"
+  },
+  {
+    "file": "liverpool20160417afcbournemouth.csv",
+    "label": "Liverpool - AFC Bournemouth (17/04/2016)",
+    "dateKey": "20160417"
+  },
+  {
+    "file": "liverpool20160420everton.csv",
+    "label": "Liverpool - Everton (20/04/2016)",
+    "dateKey": "20160420"
+  },
+  {
+    "file": "liverpool20160423newcastleunited.csv",
+    "label": "Liverpool - Newcastle United (23/04/2016)",
+    "dateKey": "20160423"
+  },
+  {
+    "file": "liverpool20160501swanseacity.csv",
+    "label": "Liverpool - Swansea City (01/05/2016)",
+    "dateKey": "20160501"
+  },
+  {
+    "file": "liverpool20160508watford.csv",
+    "label": "Liverpool - Watford (08/05/2016)",
+    "dateKey": "20160508"
+  },
+  {
+    "file": "liverpool20160511chelsea.csv",
+    "label": "Liverpool - Chelsea (11/05/2016)",
+    "dateKey": "20160511"
+  },
+  {
+    "file": "liverpool20160515westbromwichalbion.csv",
+    "label": "Liverpool - West Bromwich Albion (15/05/2016)",
+    "dateKey": "20160515"
+  }
+]
