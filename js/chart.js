@@ -30,7 +30,7 @@
         .style("opacity", 0)
         .style("pointer-events", "none");
 
-    const shotsDataBase = document.body.dataset.shotsBase || "../jsFootball/data";
+    const shotsDataBase = document.body.dataset.shotsBase || "../data";
     const resolveShotFile = (value) => {
         if (!value) {
             return `${shotsDataBase}/liverpool20150809stokecity.csv`;
@@ -42,8 +42,12 @@
     };
 
     const matchDropdown = document.querySelector("#gameDropdown");
-    const files = matchDropdown
-        ? Array.from(matchDropdown.querySelectorAll("option")).map(option => resolveShotFile(option.value))
+    const optionValues = matchDropdown
+        ? Array.from(matchDropdown.querySelectorAll("option")).map(o => o.value).filter(Boolean)
+        : [];
+
+    const files = optionValues.length > 0
+        ? optionValues.map(v => resolveShotFile(v))
         : [
             "liverpool20150809stokecity.csv",
             "liverpool20150817afcbournemouth.csv",
@@ -118,8 +122,12 @@
                     .text(sortDescending ? "Sort: Descending" : "Sort: Ascending");
                 updateChart();
             });
-
+            
         updateChart();
+
+        //debugging
+        console.log("Loaded rows:", rawData.length);
+        console.log("Goals rows:", goals.length);
     });
 
     function updateChart() {
@@ -188,6 +196,7 @@
             .attr("x", width / 2)
             .attr("y", height + 50)
             .attr("text-anchor", "middle")
+            .attr("fill", "white")
             .style("font-size", "16px")
             .style("font-weight", "600")
             .text("Total Goals");
@@ -196,6 +205,7 @@
             .attr("transform", "rotate(-90)")
             .attr("x", -height / 2)
             .attr("y", -180)
+            .attr("fill", "white")
             .attr("text-anchor", "middle")
             .style("font-size", "16px")
             .style("font-weight", "600")
