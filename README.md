@@ -1,6 +1,7 @@
 # Liverpool Offense Radar & Shot Map
 
 A static D3 visualization for analyzing Liverpool’s offense (2015/16 season): a radar chart with team percentiles, a shot map on the pitch, and a bar chart of goals scored.
+- Demo: https://e1643106.github.io/Info_Vis_Final/
 
 ---
 
